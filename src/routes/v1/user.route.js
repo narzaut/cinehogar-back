@@ -2,12 +2,13 @@ const express = require('express');
 const userController = require('../../controllers/user.controller');
 const userValidation = require('../../validations/user.validation');
 const validate = require('../../middlewares/validate');
+const auth = require('../../middlewares/auth');
 
 
 const router = express.Router();
 
 router.route('/')
-	.get(validate(userValidation.getUsers), userController.getUsers)
+	.get(auth('getUsers'), validate(userValidation.getUsers), userController.getUsers)
 	.post(validate(userValidation.createUser), userController.createUser)
 
 router.route('/:userId')

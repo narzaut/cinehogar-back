@@ -5,18 +5,27 @@ const bcrypt = require('bcryptjs')
 
 const createUser = async (userBody) => {
 	if (await User.isEmailTaken(userBody.email)) throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
-	userBody.password = bcrypt.hashSync(userBody.password, 10)
-  return User.create(userBody);
+	return User.create({ ...userBody, password: bcrypt.hashSync(userBody.password, 10) });
 };
 
 const getUsers = async () => {
 	const users = await User.findAll();
-	if (!users) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+	if (!users.length) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   return users
 };
 
 const getUserById = async (userId) => {
   const user = await User.findByPk(userId);
+	if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+	return user
+};
+
+const getUserByEmail = async (userEmail) => {
+  const user = await User.findOne({
+		where: {
+			email: userEmail
+		}
+	});
 	if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
 	return user
 };
@@ -37,10 +46,7 @@ const updateUserById = async (userId, updateBody) => {
 	if (updateBody.email && (await User.isEmailTaken(updateBody.email))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
-	if (updateBody.password){
-		updateBody.password = bcrypt.hashSync(updateBody.password, 10)
-	} 
-	Object.assign(user, updateBody);
+	Object.assign(user, !updateBody.password ? updateBody : { ...updateBody, password: bcrypt.hashSync(updateBody.password, 10) });
   await user.save();
   return user;
 }
@@ -49,6 +55,7 @@ const updateUserById = async (userId, updateBody) => {
 module.exports = {
   getUsers,
 	getUserById,
+	getUserByEmail,
 	deleteUserById,
 	createUser,
 	updateUserById

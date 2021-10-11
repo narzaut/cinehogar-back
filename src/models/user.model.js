@@ -1,10 +1,13 @@
 const validator = require('validator');
-const { INTEGER, STRING } = require('sequelize');
+const { INTEGER, STRING, ENUM } = require('sequelize');
 const { connection } = require('./database-init');
 const ApiError = require('../utils/ApiError');
 const httpStatus = require('http-status');
+const bcrypt = require('bcryptjs')
+const { roles } = require('../config/roles');
 
 const userSchema = ( sequelize ) => {
+	console.log(roles, 'roles')
 	const User = sequelize.define('user', {
 		id: {
 			allowNull: false,
@@ -28,6 +31,9 @@ const userSchema = ( sequelize ) => {
 		password: {
 			allowNull: false,
 			type: STRING
+		},
+		role: {
+			type: ENUM(roles)
 		}
 	});
 	
@@ -41,9 +47,14 @@ const userSchema = ( sequelize ) => {
 		return false
 	}
 
-	User.isPasswordMatch = async (userId, userPassword) => {
-		const user = User.findByPk(userId)
-		return bcrypt.compare(user.password, userPassword);
+	User.isPasswordMatch = async (userEmail, userPassword) => {
+		const user = await User.findOne({
+			where: {
+				email: userEmail
+			},
+			attributes: ['password']
+		})
+		return bcrypt.compare(userPassword, user.password)
 	}
 
 	return User
