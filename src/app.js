@@ -1,4 +1,5 @@
 const express = require('express');
+const xss = require('xss-clean');
 const helmet = require('helmet');
 const compression = require('compression');
 const cors = require('cors');
@@ -8,6 +9,7 @@ const config = require('./config/config');
 const routes = require('./routes/v1');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 const ApiError = require('./utils/ApiError');
+
 const app = express();
 // set security HTTP headers
 app.use(helmet());
@@ -17,6 +19,9 @@ app.use(express.json());
 
 // parse urlencoded request body
 app.use(express.urlencoded({ extended: true }));
+
+// sanitize request data
+app.use(xss());
 
 // gzip compression
 app.use(compression());
