@@ -1,6 +1,6 @@
 const app = require('./app')
 const config = require('./config/config');
-const { connection } = require('./models/database-init');
+const { connection } = require('./config/database-init');
 
 //Check DB connection then run server
 (async () => {

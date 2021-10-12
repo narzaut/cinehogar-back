@@ -8,7 +8,7 @@ const {
 } = require('sequelize');
 const {
 	connection
-} = require('./database-init');
+} = require('../config/database-init');
 const ApiError = require('../utils/ApiError');
 const httpStatus = require('http-status');
 const tokenTypes = require('../config/tokens');

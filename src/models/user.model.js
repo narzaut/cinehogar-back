@@ -1,6 +1,6 @@
 const validator = require('validator');
 const { INTEGER, STRING, ENUM } = require('sequelize');
-const { connection } = require('./database-init');
+const { connection } = require('../config/database-init');
 const ApiError = require('../utils/ApiError');
 const httpStatus = require('http-status');
 const bcrypt = require('bcryptjs')
